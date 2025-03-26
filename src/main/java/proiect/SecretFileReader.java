@@ -1,7 +1,6 @@
 package proiect;
 
 import java.io.FileReader;
-import java.io.Reader;
 import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,21 +11,7 @@ import org.json.JSONTokener;
  */
 public class SecretFileReader {
 
-    private static final String FILE_PATH = "secrets.json";
-
-    /**
-     * Provides a file reader for reading the secrets file.
-     * <p>
-     * This method allows dependency injection for testing by enabling
-     * mock implementations to replace the actual file reader.
-     * </p>
-     *
-     * @return a {@link Reader} instance for reading the secrets file.
-     * @throws IOException if an error occurs while opening the file.
-     */
-    protected static Reader getFileReader() throws IOException {
-        return new FileReader(FILE_PATH);
-    }
+    private static String FILE_PATH = "secrets.json";
 
     /**
      * Reads the secrets.json file and returns the value associated with the given key.
@@ -37,7 +22,7 @@ public class SecretFileReader {
      * @throws JSONException if the JSON is invalid or the key is not found.
      */
     private static String getValue(String key) throws IOException, JSONException {
-        try (Reader reader = getFileReader()) {
+        try (FileReader reader = new FileReader(FILE_PATH)) {
             JSONTokener tokener = new JSONTokener(reader);
             JSONObject jsonObject = new JSONObject(tokener);
             return jsonObject.getString(key);
@@ -78,13 +63,13 @@ public class SecretFileReader {
     }
 
     /**
-     * Reads the secrets.json file and returns the value associated with the key "deepSeekApi".
+     * Reads the secrets.json file and returns the value associated with the key "deepSeek".
      *
-     * @return the value for the key "deepSeekApi" from the secrets.json file, or null if an error occurs.
+     * @return the value for the key "deepSeek" from the secrets.json file, or null if an error occurs.
      * @throws IOException if an I/O error occurs while reading the file.
      * @throws JSONException if the JSON is invalid or the key is not found.
      */
-    public static String getDeepSeekApiKey() throws IOException, JSONException {
-        return getValue("deepSeekApi");
+    public static String getDeepSeekKey() throws IOException, JSONException {
+        return getValue("deepSeek");
     }
 }
