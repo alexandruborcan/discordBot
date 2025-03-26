@@ -61,4 +61,15 @@ public class SecretFileReader {
     public static String getAmazonPollyKey() throws IOException, JSONException {
         return getValue("amazonPolly");
     }
+
+    /**
+     * Reads the secrets.json file and returns the value associated with the key "deepSeek".
+     *
+     * @return the value for the key "deepSeek" from the secrets.json file, or null if an error occurs.
+     * @throws IOException if an I/O error occurs while reading the file.
+     * @throws JSONException if the JSON is invalid or the key is not found.
+     */
+    public static String getDeepSeekKey() throws IOException, JSONException {
+        return getValue("deepSeek");
+    }
 }
