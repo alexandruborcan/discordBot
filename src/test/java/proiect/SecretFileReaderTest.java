@@ -13,10 +13,42 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 class SecretFileReaderTest {
 
-    private static final String TEST_FILE_PATH = "secrets.json";
+    private static final String TEST_FILE_PATH = "secrets_test.json";
+    private static String originalFilePath;  // To store the original path
+
+    /**
+     * Helper method to set the file path for testing.
+     */
+    void overrideFilePath() {
+        try {
+            // Access the FILE_PATH field using reflection
+            var field = SecretFileReader.class.getDeclaredField("FILE_PATH");
+            field.setAccessible(true);  // Make the field accessible
+
+            // Save the original file path before modifying it
+            originalFilePath = (String) field.get(null);  // Get the original value
+
+            // Set the new value to FILE_PATH
+            field.set(null, TEST_FILE_PATH);
+        } catch (Exception e) {
+            fail("Could not override file path");
+        }
+    }
+
+    void restoreFilePath() {
+        try {
+            // Restore the original file path after the test
+            var field = SecretFileReader.class.getDeclaredField("FILE_PATH");
+            field.setAccessible(true);
+            field.set(null, originalFilePath);  // Set back to the original path
+        } catch (Exception e) {
+            fail("Could not restore original file path");
+        }
+    }
 
     @BeforeEach
     void setUp() throws IOException{
+        overrideFilePath();
         // Setting up the test JSON
         JSONObject json = new JSONObject();
         json.put("discord", "test-discord-key");
@@ -32,6 +64,7 @@ class SecretFileReaderTest {
     @AfterEach
     void tearDown() {
         new File(TEST_FILE_PATH).delete();
+        restoreFilePath();
     }
 
     @Test
