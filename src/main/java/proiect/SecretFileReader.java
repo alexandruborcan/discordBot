@@ -11,7 +11,7 @@ import org.json.JSONTokener;
  */
 public class SecretFileReader {
 
-    private static final String FILE_PATH = "secrets.json";
+    private static String FILE_PATH = "secrets.json";
 
     /**
      * Reads the secrets.json file and returns the value associated with the given key.
