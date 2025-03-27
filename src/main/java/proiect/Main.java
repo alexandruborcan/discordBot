@@ -35,7 +35,7 @@ public class Main {
                         .addOption(STRING, "content", "What the bot should say", true), // Accepting a user input
                 Commands.slash("ping", "Makes the bot reply with Pong"),
                 Commands.slash("play", "Play a song that fits the given text")
-                        .addOption(STRING, "Mood / Feeling / Situation", "The mood, feeling, or situation.", true),
+                        .addOption(STRING, "mood-or-feeling-or-situation", "The mood, feeling, or situation.", true),
                 Commands.slash("stop", "Stop the music"),
                 Commands.slash("skip", "Skip the currently playing song"),
                 Commands.slash("pause", "Pause the currently playing song"),
