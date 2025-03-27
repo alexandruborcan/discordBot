@@ -26,6 +26,11 @@ public class DiscordListener extends ListenerAdapter {
             case "skip":
             case "pause":
             case "play":
+                // The play command should send the text to deepseek,
+                // Deepseek should return some text (prefferably formatted in some way) containing the song names
+                // We send the string of song names to a function like "parseSongs" that returns a vector or list of song names
+                // We send that list to a function that downloads those songs using yt-dlp and returns a list of the file names
+                // We send that list off to the audioplayer
             case "unpause":
             case "resume":
                 handleNotImplementedCommand(event);
