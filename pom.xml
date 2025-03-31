@@ -39,5 +39,11 @@
             <version>5.12.1</version>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-java</artifactId>
+            <version>0.40.1</version>
+        </dependency>
     </dependencies>
 </project>
