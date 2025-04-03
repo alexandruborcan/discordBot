@@ -51,6 +51,11 @@ public class DiscordListener extends ListenerAdapter {
         }
     }
 
+    /**
+     * Handles the "disconnect" command.
+     *
+     * @param event the event triggered by a slash command interaction.
+     */
     @SuppressWarnings("DataFlowIssue")
     private void handleDisconnectCommand(SlashCommandInteractionEvent event) {
         final Member self = event.getGuild().getSelfMember();
@@ -65,6 +70,11 @@ public class DiscordListener extends ListenerAdapter {
         event.reply("Disconnected from voice channel.").queue();
     }
 
+    /**
+     * Handles the "connect" command.
+     *
+     * @param event the event triggered by a slash command interaction.
+     */
     @SuppressWarnings("DataFlowIssue")
     private void handleConnectCommand(SlashCommandInteractionEvent event) {
         final Member self = event.getGuild().getSelfMember();
