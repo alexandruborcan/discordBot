@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class Main {
             e.printStackTrace();
             System.exit(1);
         }
-        JDA api = JDABuilder.createLight(discordToken, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES)
+        JDA api = JDABuilder.createDefault(discordToken, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_VOICE_STATES)
                 .addEventListeners(new DiscordListener())
                 .build();
 
@@ -40,7 +41,9 @@ public class Main {
                 Commands.slash("skip", "Skip the currently playing song"),
                 Commands.slash("pause", "Pause the currently playing song"),
                 Commands.slash("unpause", "Resumes the paused song"),
-                Commands.slash("resume", "Resumes the paused song")
+                Commands.slash("resume", "Resumes the paused song"),
+                Commands.slash("connect", "Connect to the voice channel"),
+                Commands.slash("disconnect", "Disconnect from the voice channel")
         ).queue();
     }
 }

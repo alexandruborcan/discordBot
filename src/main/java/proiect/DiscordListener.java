@@ -1,8 +1,16 @@
 package proiect;
 
+import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.managers.AudioManager;
 
 import java.util.Objects;
 
@@ -35,10 +43,53 @@ public class DiscordListener extends ListenerAdapter {
             case "resume":
                 handleNotImplementedCommand(event);
                 break;
+            case "connect":
+                handleConnectCommand(event);
+                break;
+            case "disconnect":
+                handleDisconnectCommand(event);
+                break;
             default:
                 event.reply("Unknown command.").queue();
                 break;
         }
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    private void handleDisconnectCommand(SlashCommandInteractionEvent event) {
+        final Member self = event.getGuild().getSelfMember();
+        final GuildVoiceState selfVoiceState = self.getVoiceState();
+        if (!selfVoiceState.inAudioChannel()) {
+            event.reply("Not connected to any voice channel.").queue();
+            return;
+        }
+
+        final AudioManager audioManager = self.getGuild().getAudioManager();
+        audioManager.closeAudioConnection();
+        event.reply("Disconnected from voice channel.").queue();
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    private void handleConnectCommand(SlashCommandInteractionEvent event) {
+        final Member self = event.getGuild().getSelfMember();
+        final GuildVoiceState selfVoiceState = self.getVoiceState();
+        if (selfVoiceState.inAudioChannel()) {
+            event.reply("Already connected to a voice channel: " + selfVoiceState.getChannel().getName()).queue();
+            return;
+        }
+
+        final Member member = event.getMember();
+        final GuildVoiceState memberVoiceState = member.getVoiceState();
+        if (!memberVoiceState.inAudioChannel()) {
+            event.reply("You are not connected to any voice channel.").queue();
+            return;
+        }
+
+        final AudioManager audioManager = event.getGuild().getAudioManager();
+        final VoiceChannel memberVoiceChannel = memberVoiceState.getChannel().asVoiceChannel();
+
+        audioManager.openAudioConnection(memberVoiceChannel);
+        event.reply("Connected to voice channel: " + memberVoiceChannel.getName()).queue();
     }
 
     /**
