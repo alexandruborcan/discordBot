@@ -85,4 +85,8 @@ public class SlashCommandHandler {
     public void handleNotImplementedCommand(SlashCommandInteractionEvent event) {
         event.reply("Not implemented.").queue();
     }
+
+    public void handleSpeakCommand(SlashCommandInteractionEvent event) {
+        event.reply("Not implemented.").queue();
+    }
 }

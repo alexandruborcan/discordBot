@@ -40,6 +40,9 @@ public class DiscordListener extends ListenerAdapter {
             case "disconnect":
                 commandHandler.handleDisconnectCommand(event);
                 break;
+            case "speak":
+                commandHandler.handleSpeakCommand(event);
+                break;
             default:
                 event.reply("Unknown command.").queue();
                 break;
