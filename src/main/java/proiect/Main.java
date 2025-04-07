@@ -1,5 +1,8 @@
 package proiect;
 
+import com.openai.client.OpenAIClientImpl;
+import com.openai.models.beta.threads.messages.MessageCreateParams;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
@@ -11,9 +14,18 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.json.JSONException;
 
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
+import static proiect.DeepseekProvider.*;
+
+
+import com.openai.client.OpenAIClient;
+import com.openai.client.okhttp.OpenAIOkHttpClient;
+import com.openai.models.ChatModel;
+import com.openai.models.responses.Response;
+import com.openai.models.responses.ResponseCreateParams;
+
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String discordToken = null;
         try {
             discordToken = SecretFileReader.getDiscordKey();
@@ -36,5 +48,10 @@ public class Main {
                         .addOption(STRING, "content", "What the bot should say", true), // Accepting a user input
                 Commands.slash("ping", "Makes the bot reply with Pong")
         ).queue();
+
+        String reply = messageDeepseek("I need 5 sad songs");
+        System.out.println(reply);
+
     }
+
 }
