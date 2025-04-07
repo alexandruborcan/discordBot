@@ -11,7 +11,9 @@ import static proiect.SecretFileReader.*;
 
 
 public class DeepseekProvider {
-    DeepseekProvider(){};
+    DeepseekProvider(){}
+
+
     public OpenAIClient DeepseekBuilder() throws IOException {
         String key = getDeepSeekKey();
         return OpenAIOkHttpClient.builder()
@@ -21,6 +23,16 @@ public class DeepseekProvider {
     }
 
     public static String messageDeepseek(String message) throws IOException {
+        return messageDeepseek(message, false);
+    }
+
+    public static String messageDeepseek(String message, boolean json) throws IOException {
+        String systemMessage = "";
+        if (json) {
+            systemMessage = "You are a bot that ONLY replies in the following format {\"songs\":[\"song1\", \"song2\"]}." +
+                    "You DO NOT know about the existence of json or code formatting, you DO NOT use code blocks or" +
+                    " any other kind of formatting but the provided one to reply.";
+        }
         DeepseekProvider builder = new DeepseekProvider();
         OpenAIClient client = builder.DeepseekBuilder();
 
@@ -28,8 +40,7 @@ public class DeepseekProvider {
                 .model("deepseek-chat")
                 .maxCompletionTokens(1024)
                 .addUserMessage(message)
-                .addSystemMessage("reply only using the following format " +
-                        "{\"songs\":[\"song1\", \"song2\"]}. Only reply with said format, no added text and reply as a string") // TODO
+                .addSystemMessage(systemMessage)
                 .build();
 
         List<String> reply = client.chat().completions().create(createParams).choices().stream()
