@@ -7,20 +7,10 @@ import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import java.io.IOException;
 import java.util.List;
 
-import static proiect.SecretFileReader.*;
+import static proiect.SecretFileReader.getDeepSeekKey;
 
 
 public class DeepseekProvider {
-    DeepseekProvider(){}
-
-
-    public OpenAIClient DeepseekBuilder() throws IOException {
-        String key = getDeepSeekKey();
-        return OpenAIOkHttpClient.builder()
-                .baseUrl("https://api.deepseek.com/v1/")
-                .apiKey(key)
-                .build();
-    }
 
     public static String messageDeepseek(String message) throws IOException {
         return messageDeepseek(message, false);
@@ -46,5 +36,13 @@ public class DeepseekProvider {
         List<String> reply = client.chat().completions().create(createParams).choices().stream()
                 .flatMap(choice -> choice.message().content().stream()).toList();
         return reply.getFirst();
+    }
+
+    public OpenAIClient DeepseekBuilder() throws IOException {
+        String key = getDeepSeekKey();
+        return OpenAIOkHttpClient.builder()
+                .baseUrl("https://api.deepseek.com/v1/")
+                .apiKey(key)
+                .build();
     }
 }
