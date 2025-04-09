@@ -17,6 +17,7 @@ public class DeepseekProvider {
     }
 
     public static String messageDeepseek(String message, boolean json) throws IOException {
+        if (message.isEmpty()) throw new IllegalArgumentException("Message cannot be empty.");
         String systemMessage = "";
         if (json) {
             systemMessage = "You are a bot that ONLY replies in the following format {\"songs\":[\"song1\", \"song2\"]}." +
