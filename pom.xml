@@ -39,7 +39,7 @@
             <version>5.12.1</version>
             <scope>test</scope>
         </dependency>
-        
+        <!-- https://mvnrepository.com/artifact/com.openai/openai-java -->
         <dependency>
             <groupId>com.openai</groupId>
             <artifactId>openai-java</artifactId>
