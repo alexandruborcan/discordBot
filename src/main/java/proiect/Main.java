@@ -48,15 +48,6 @@ public class Main {
                         .addOption(STRING, "text", "The text to be spoken", true)
         ).queue();
 
-        /*
-        PollyHandler pollyHandler = new PollyHandler();
-        try {
-            File mp3File = pollyHandler.synthesizeSpeech("Hello, this is a test.");
-            System.out.println("MP3 file created: " + mp3File.getAbsolutePath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-         */
         try {
             PollyHandler.create();
             File mp3File = PollyHandler.synthesizeSpeech("Hello, this is a test.");
