@@ -13,28 +13,39 @@ import software.amazon.awssdk.services.polly.model.VoiceId;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.Instant;
 
 public class PollyHandler {
-    private final PollyClient pollyClient;
+    private static PollyClient pollyClient = null;
 
     /**
      * Constructor for PollyHandler.
      * Initializes the PollyClient with AWS credentials.
+     * @throws IOException if there was a problem reading the credentials.
      */
-    public PollyHandler() {
+    private PollyHandler() throws IOException {
         String accessKey;
         String privateKey;
-        try {
-            accessKey = SecretFileReader.getAmazonPollyAccessKey();
-            privateKey = SecretFileReader.getAmazonPollySecretKey();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        accessKey = SecretFileReader.getAmazonPollyAccessKey();
+        privateKey = SecretFileReader.getAmazonPollySecretKey();
+
         AwsBasicCredentials awsCreds = AwsBasicCredentials.create(accessKey, privateKey);
-        this.pollyClient = PollyClient.builder()
+        pollyClient = PollyClient.builder()
                 .region(Region.EU_CENTRAL_1) // Set your desired AWS region
                 .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
                 .build();
+    }
+
+    /**
+     * Create a new PollyHandler instance.
+     * You must call this function before using the synthesizeSpeech method.
+     * Calling this function multiple times will not create multiple instances.
+     * @throws IOException if there was a problem reading the credentials.
+     */
+    public static synchronized void create() throws IOException {
+        if (pollyClient == null) {
+            new PollyHandler();
+        }
     }
 
     /**
@@ -45,8 +56,13 @@ public class PollyHandler {
      * @param text the text to synthesize
      * @return the MP3 file containing the synthesized speech
      * @throws IOException if an error occurs while writing the file
+     * @throws IllegalStateException if the PollyClient is not initialized
      */
-    public File synthesizeSpeech(String text) throws IOException {
+    public static File synthesizeSpeech(String text) throws IOException, IllegalStateException {
+        if (pollyClient == null) {
+            throw new IllegalStateException("PollyClient is not initialized. Call create() method first.");
+        }
+
         // TODO: Try out different voices and pick the best one
         SynthesizeSpeechRequest request = SynthesizeSpeechRequest.builder()
                 .text(text)
@@ -55,16 +71,25 @@ public class PollyHandler {
                 .engine("neural")
                 .build();
 
-        ResponseInputStream<SynthesizeSpeechResponse> response = pollyClient.synthesizeSpeech(request);
-        // Get the first 20 characters if the text is longer than 20 characters
-        // Otherwise get the whole text
-        String fileName = text.length() > 20 ? text.substring(0, 20) : text;
-        File mp3File = new File(fileName);
+        try (ResponseInputStream<SynthesizeSpeechResponse> response = pollyClient.synthesizeSpeech(request);
+             FileOutputStream out = new FileOutputStream(generateFileName(text))) {
+            out.write(response.readAllBytes());
+        }
 
-        FileOutputStream out = new FileOutputStream(mp3File);
-        out.write(response.readAllBytes());
-        out.close();
+        return new File(generateFileName(text));
+    }
 
-        return mp3File;
+    /**
+     * Generates a file name for the MP3 file based on the given text and the current timestamp.
+     * The file name is created by stripping the text of any special characters (not letters),
+     * taking the first 20 characters, appending the current timestamp in milliseconds,
+     * and adding the ".mp3" extension.
+     * @param text the text to be used in the file name
+     * @return the generated file name
+     */
+    private static String generateFileName(String text) {
+        String baseName = text.replaceAll("[^a-zA-Z]", "");
+        baseName = baseName.length() > 20 ? baseName.substring(0, 20) : baseName;
+        return baseName + "_" + Instant.now().toEpochMilli() + ".mp3";
     }
 }
