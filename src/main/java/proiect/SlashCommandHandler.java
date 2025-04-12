@@ -86,6 +86,11 @@ public class SlashCommandHandler {
         event.reply("Not implemented.").queue();
     }
 
+    /**
+     * Handles the "speak" command.
+     *
+     * @param event the event triggered by a slash command interaction.
+     */
     public void handleSpeakCommand(SlashCommandInteractionEvent event) {
         event.reply("Not implemented.").queue();
     }
