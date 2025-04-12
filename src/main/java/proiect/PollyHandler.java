@@ -44,6 +44,8 @@ public class PollyHandler {
      */
     public static synchronized void create() throws IOException {
         if (pollyClient == null) {
+            // Disabling this warning is okay because we're using a singleton pattern
+            //noinspection InstantiationOfUtilityClass
             new PollyHandler();
         }
     }
