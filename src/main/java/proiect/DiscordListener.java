@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class DiscordListener extends ListenerAdapter {
 
-    private final SlashCommandHandler commandHandler = new SlashCommandHandler();
+    private final static SlashCommandHandler commandHandler = new SlashCommandHandler();
 
     /**
      * Handles the slash command interactions.

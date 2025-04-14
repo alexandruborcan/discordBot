@@ -14,9 +14,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Vector;
 
 public class PollyHandler {
     private static PollyClient pollyClient = null;
+    public static Vector<String> fileNames = new Vector<>();
 
     /**
      * Constructor for PollyHandler.
@@ -60,7 +62,7 @@ public class PollyHandler {
      * @throws IOException if an error occurs while writing the file
      * @throws IllegalStateException if the PollyClient is not initialized
      */
-    public static File synthesizeSpeech(String text) throws IOException, IllegalStateException {
+    public static String synthesizeSpeech(String text) throws IOException, IllegalStateException {
         if (pollyClient == null) {
             throw new IllegalStateException("PollyClient is not initialized. Call create() method first.");
         }
@@ -73,12 +75,21 @@ public class PollyHandler {
                 .engine("neural")
                 .build();
 
+        String fileName = generateFileName(text);
         try (ResponseInputStream<SynthesizeSpeechResponse> response = pollyClient.synthesizeSpeech(request);
-             FileOutputStream out = new FileOutputStream(generateFileName(text))) {
+             FileOutputStream out = new FileOutputStream(fileName)) {
             out.write(response.readAllBytes());
         }
-
-        return new File(generateFileName(text));
+        if (fileNames.size() > 10) {
+            // Remove the oldest file if we have more than 10 files
+            String oldestFileName = fileNames.removeFirst();
+            File oldestFile = new File(oldestFileName);
+            if (oldestFile.exists()) {
+                oldestFile.delete();
+            }
+        }
+        fileNames.add(fileName);
+        return fileName;
     }
 
     /**

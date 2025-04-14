@@ -1,5 +1,14 @@
 package proiect;
 
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
+import com.sedmelluq.discord.lavaplayer.source.local.LocalAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
@@ -7,9 +16,23 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.managers.AudioManager;
 
+import java.io.IOException;
 import java.util.Objects;
 
 public class SlashCommandHandler {
+
+    private static AudioPlayerManager audioPlayerManager;
+    private AudioPlayer audioPlayer = null;
+
+    public SlashCommandHandler() {
+        if (audioPlayerManager == null) {
+            audioPlayerManager = new DefaultAudioPlayerManager();
+            audioPlayerManager.registerSourceManager(new LocalAudioSourceManager());
+            AudioSourceManagers.registerRemoteSources(audioPlayerManager);
+            AudioSourceManagers.registerLocalSource(audioPlayerManager);
+            audioPlayer = audioPlayerManager.createPlayer();
+        }
+    }
 
     /**
      * Handles the "disconnect" command.
@@ -92,6 +115,47 @@ public class SlashCommandHandler {
      * @param event the event triggered by a slash command interaction.
      */
     public void handleSpeakCommand(SlashCommandInteractionEvent event) {
-        event.reply("Not implemented.").queue();
+        final Member member = event.getMember();
+        final GuildVoiceState memberVoiceState = member.getVoiceState();
+        if (!memberVoiceState.inAudioChannel()) {
+            event.reply("You are not connected to any voice channel.").queue();
+            return;
+        }
+
+        final AudioManager audioManager = event.getGuild().getAudioManager();
+        final VoiceChannel memberVoiceChannel = memberVoiceState.getChannel().asVoiceChannel();
+
+        audioManager.setSendingHandler(new AudioPlayerSendHandler(audioPlayer));
+        audioManager.openAudioConnection(memberVoiceChannel);
+
+        String filePath;
+        try {
+            PollyHandler.create(); // Just in case, it doesn't break anything
+            filePath = PollyHandler.synthesizeSpeech(event.getOption("text", OptionMapping::getAsString));
+        } catch (IOException e) {
+            event.reply("Failed to synthesise speech! Did you forget to call PollyHandler.create() before?").queue();
+            return;
+        }
+        audioPlayerManager.loadItem(filePath, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack audioTrack) {
+                audioPlayer.playTrack(audioTrack);
+                event.reply("Playing track: " + audioTrack.getInfo().title).queue();
+            }
+
+            @Override
+            public void playlistLoaded(AudioPlaylist audioPlaylist) {
+            }
+
+            @Override
+            public void noMatches() {
+                event.reply("No matches found for file path: " + filePath).queue();
+            }
+
+            @Override
+            public void loadFailed(FriendlyException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

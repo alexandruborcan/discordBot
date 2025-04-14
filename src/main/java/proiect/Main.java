@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.json.JSONException;
 
-import java.io.File;
 import java.io.IOException;
 
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
@@ -47,13 +46,5 @@ public class Main {
                 Commands.slash("speak", "Make the bot speak in the voice channel")
                         .addOption(STRING, "text", "The text to be spoken", true)
         ).queue();
-
-        try {
-            PollyHandler.create();
-            File mp3File = PollyHandler.synthesizeSpeech("Hello, this is a test.");
-            System.out.println("MP3 file created: " + mp3File.getAbsolutePath());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
