@@ -1,42 +1,13 @@
 package proiect;
 
 import java.io.*;
+import java.net.URISyntaxException;
 
 public class YTDLPDownloader {
-    static String ytDlpPath;
-    static String ffmpegPath;
 
-    public static void runYtDlp(String videoUrl) throws IOException, InterruptedException {
-        String os = System.getProperty("os.name").toLowerCase();
+    public static void runYtDlp(String videoUrl) throws IOException, InterruptedException, URISyntaxException {
 
-        if (os.contains("win")) {
-            ytDlpPath = "bin/win/yt-dlp.exe";
-            ffmpegPath = "bin/win/ffmpeg.exe";
-
-        } else if (os.contains("mac")) {
-            ytDlpPath = "bin/mac/yt-dlp";
-            ffmpegPath = "bin/mac/ffmpeg";
-            if(!(new File("bin/mac/yt-dlp").setExecutable(true))){
-                throw new FileNotFoundException();
-            }
-            if(!(new File("bin/mac/ffmpeg").setExecutable(true))){
-                throw new FileNotFoundException();
-            }
-            if(!(new File("bin/mac/ffprobe").setExecutable(true))){
-                throw new FileNotFoundException();
-            }
-        } else {
-            ytDlpPath = "bin/linux/yt-dlp";
-            ffmpegPath = "bin/linux/ffmpeg";
-            if(!(new File("bin/linux/ffmpeg").setExecutable(true))){
-                throw new FileNotFoundException();
-            }
-            if(!(new File("bin/linux/ffprobe").setExecutable(true))){
-                throw new FileNotFoundException();
-            }
-        }
-
-        ProcessBuilder pb = new ProcessBuilder(ytDlpPath, "-x", "--ffmpeg-location", ffmpegPath, "--audio-format", "mp3",  videoUrl);
+        ProcessBuilder pb = new ProcessBuilder(Init.ytDlpPath, "-x", "--ffmpeg-location", Init.ffmpegPath, "--audio-format", "mp3",  videoUrl);
         pb.redirectErrorStream(true);
         Process process = pb.start();
 
