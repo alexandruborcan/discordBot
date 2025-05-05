@@ -1,8 +1,5 @@
 package proiect;
 
-import com.openai.client.OpenAIClientImpl;
-import com.openai.models.beta.threads.messages.MessageCreateParams;
-import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -14,13 +11,6 @@ import java.io.IOException;
 
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 import static proiect.DeepseekProvider.*;
-
-
-import com.openai.client.OpenAIClient;
-import com.openai.client.okhttp.OpenAIOkHttpClient;
-import com.openai.models.ChatModel;
-import com.openai.models.responses.Response;
-import com.openai.models.responses.ResponseCreateParams;
 
 
 public class Main {
