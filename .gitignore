@@ -39,3 +39,5 @@ build/
 
 ### Fisier care contine cheile API ###
 secrets.json
+
+*.mp3

@@ -1,17 +1,18 @@
 package proiect;
 
-import java.io.FileReader;
-import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * A utility class to read secret values from a JSON file.
  */
 public class SecretFileReader {
 
-    private static String FILE_PATH = "secrets.json";
+    private static final String FILE_PATH = "secrets.json";
 
     /**
      * Reads the secrets.json file and returns the value associated with the given key.
@@ -52,14 +53,25 @@ public class SecretFileReader {
     }
 
     /**
-     * Reads the secrets.json file and returns the value associated with the key "amazonPolly".
+     * Reads the secrets.json file and returns the value associated with the key "amazonPollySecretKey".
      *
-     * @return the value for the key "amazonPolly" from the secrets.json file, or null if an error occurs.
+     * @return the value for the key "amazonPollySecretKey" from the secrets.json file, or null if an error occurs.
      * @throws IOException if an I/O error occurs while reading the file.
      * @throws JSONException if the JSON is invalid or the key is not found.
      */
-    public static String getAmazonPollyKey() throws IOException, JSONException {
-        return getValue("amazonPolly");
+    public static String getAmazonPollySecretKey() throws IOException, JSONException {
+        return getValue("amazonPollySecretKey");
+    }
+
+    /**
+     * Reads the secrets.json file and returns the value associated with the key "amazonPollyAccessKey".
+     *
+     * @return the value for the key "amazonPollyAccessKey" from the secrets.json file, or null if an error occurs.
+     * @throws IOException if an I/O error occurs while reading the file.
+     * @throws JSONException if the JSON is invalid or the key is not found.
+     */
+    public static String getAmazonPollyAccessKey() throws IOException, JSONException {
+        return getValue("amazonPollyAccessKey");
     }
 
     /**
