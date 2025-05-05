@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.managers.AudioManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -132,6 +133,10 @@ public class SlashCommandHandler {
         try {
             PollyHandler.create(); // Just in case, it doesn't break anything
             filePath = PollyHandler.synthesizeSpeech(event.getOption("text", OptionMapping::getAsString));
+
+            // Mark this file to be deleted on exit
+            File f = new File(filePath);
+            f.deleteOnExit();
         } catch (IOException e) {
             event.reply("Failed to synthesise speech! Did you forget to call PollyHandler.create() before?").queue();
             return;
