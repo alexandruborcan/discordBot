@@ -140,7 +140,7 @@ public class SlashCommandHandler {
             @Override
             public void trackLoaded(AudioTrack audioTrack) {
                 audioPlayer.playTrack(audioTrack);
-                event.reply("Playing track: " + audioTrack.getInfo().title).queue();
+                event.reply("Speaking...").queue();
             }
 
             @Override
