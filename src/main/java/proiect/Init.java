@@ -7,12 +7,34 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import static proiect.OSPackageManager.*;
 
+/**
+ * Initialization utility class for setting up yt-dlp and ffmpeg executables based on the user's operating system.
+ * <p>
+ *     This class detects the operating system (Windows, macOS or Linux), ensures the appropriate directories exist,
+ *     and downloads and prepares yt-dlp and ffmpeg if they are not already present. It also handles decompression
+ *     and permission settings for Unix-based systems.
+ * </p>
+ */
 public class Init {
+    /** The file path to the yt-dlp executable, set according to the operating system. */
     static String ytDlpPath;
+
+    /** The file path to the ffmpeg executable, set according to the operating system. */
     static String ffmpegPath;
 
+    /**
+     * Initialization utility class for setting up yt-dlp and ffmpeg executables based on the user's operating system.
+     * <p>
+     *     Downloads the necessary binaries if not already available locally and sets the proper file paths.
+     *     For Unix-based systems, it ensures the downloaded files are executable.
+     * </p>
+     *
+     * @throws IOException if there is an error creating directories, downloading files, or setting permissions.
+     * @throws URISyntaxException if a string could not be parsed as a URI reference.
+     */
     Init() throws IOException, URISyntaxException {
         String os = System.getProperty("os.name").toLowerCase();
 
@@ -80,6 +102,12 @@ public class Init {
         }
     }
 
+    /**
+     * Checks if the directory structure for the given OS exists, and creates it if necessary.
+     *
+     * @param os the name of the OS subdirectory (e.g., "win", "mac", or "linux")
+     * @throws IOException if the directory cannot be created
+     */
     public static void checkAndCreateDirectory(String os) throws IOException {
         Path path = Paths.get("bin/" + os);
         if (!Files.exists(path)) {
