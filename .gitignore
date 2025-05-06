@@ -39,3 +39,6 @@ build/
 
 ### Fisier care contine cheile API ###
 secrets.json
+
+### Folder-ul care tine executabilele
+bin/
