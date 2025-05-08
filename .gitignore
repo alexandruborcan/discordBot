@@ -42,3 +42,5 @@ secrets.json
 
 ### Folder-ul care tine executabilele
 bin/
+
+*.mp3
