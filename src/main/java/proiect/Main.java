@@ -5,16 +5,21 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
+import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
 
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 import static proiect.DeepseekProvider.*;
-
+import static proiect.YoutubeDataAPI.extractSongLinks;
+import static proiect.YTDLPDownloader.runYtDlp;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, GeneralSecurityException, InterruptedException, URISyntaxException {
+        new Init();
         String discordToken = null;
         try {
             discordToken = SecretFileReader.getDiscordKey();
@@ -49,9 +54,12 @@ public class Main {
                         .addOption(STRING, "text", "The text to be spoken", true)
         ).queue();
 
-        String reply = messageDeepseek("I need 5 sad songs");
-        System.out.println(reply);
-
+        String reply = messageDeepseek("I want to listen to 5 Metallica songs", true);
+        JSONArray links = extractSongLinks(reply).getJSONArray("links");
+        for (int i = 0; i < links.length(); i++) {
+            String link = links.getString(i);
+            runYtDlp(link);
+        }
     }
 
 }
