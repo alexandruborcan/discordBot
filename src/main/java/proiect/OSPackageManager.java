@@ -103,9 +103,6 @@ public class OSPackageManager {
      */
     private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
         File outFile = new File(filePath);
-        if (!outFile.getParentFile().mkdirs()) { // Create parent directories if needed
-            throw new IOException("Unable to create directory " + outFile.getParentFile());
-        }
         try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outFile))) {
             byte[] bytesIn = new byte[4096];
             int read;
