@@ -78,8 +78,13 @@ class SecretFileReaderTest {
     }
 
     @Test
-    void getAmazonPollyKey() throws IOException {
-        assertEquals("test-amazon-key", SecretFileReader.getAmazonPollyKey());
+    void getAmazonPollyAccessKey() throws IOException {
+        assertEquals("test-amazon-key", SecretFileReader.getAmazonPollyAccessKey());
+    }
+
+    @Test
+    void getAmazonPollySecretKey() throws IOException {
+        assertEquals("test-amazon-key", SecretFileReader.getAmazonPollySecretKey());
     }
 
     @Test
