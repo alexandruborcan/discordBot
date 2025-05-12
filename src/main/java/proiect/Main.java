@@ -53,13 +53,6 @@ public class Main {
                 Commands.slash("speak", "Make the bot speak in the voice channel")
                         .addOption(STRING, "text", "The text to be spoken", true)
         ).queue();
-
-        String reply = messageDeepseek("I want to listen to 5 Metallica songs", true);
-        JSONArray links = extractSongLinks(reply).getJSONArray("links");
-        for (int i = 0; i < links.length(); i++) {
-            String link = links.getString(i);
-            runYtDlp(link);
-        }
     }
 
 }

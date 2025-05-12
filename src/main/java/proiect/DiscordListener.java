@@ -29,7 +29,6 @@ public class DiscordListener extends ListenerAdapter {
             case "stop":
             case "skip":
             case "pause":
-            case "play":
             case "unpause":
             case "resume":
                 commandHandler.handleNotImplementedCommand(event);
@@ -43,6 +42,8 @@ public class DiscordListener extends ListenerAdapter {
             case "speak":
                 commandHandler.handleSpeakCommand(event);
                 break;
+            case "play":
+                commandHandler.handlePlayCommand(event);
             default:
                 event.reply("Unknown command.").queue();
                 break;

@@ -18,7 +18,6 @@ import java.util.Vector;
 
 public class PollyHandler {
     private static PollyClient pollyClient = null;
-    public static Vector<String> fileNames = new Vector<>();
 
     /**
      * Constructor for PollyHandler.
@@ -80,15 +79,6 @@ public class PollyHandler {
              FileOutputStream out = new FileOutputStream(fileName)) {
             out.write(response.readAllBytes());
         }
-        if (fileNames.size() > 10) {
-            // Remove the oldest file if we have more than 10 files
-            String oldestFileName = fileNames.removeFirst();
-            File oldestFile = new File(oldestFileName);
-            if (oldestFile.exists()) {
-                oldestFile.delete();
-            }
-        }
-        fileNames.add(fileName);
         return fileName;
     }
 

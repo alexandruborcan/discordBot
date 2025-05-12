@@ -15,15 +15,23 @@ import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.managers.AudioManager;
+import org.json.JSONArray;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Objects;
+
+import static proiect.DeepseekProvider.messageDeepseek;
+import static proiect.YTDLPDownloader.runYtDlp;
+import static proiect.YoutubeDataAPI.extractSongLinks;
 
 public class SlashCommandHandler {
 
     private static AudioPlayerManager audioPlayerManager;
     private AudioPlayer audioPlayer = null;
+    private TrackScheduler trackScheduler;
 
     public SlashCommandHandler() {
         if (audioPlayerManager == null) {
@@ -32,6 +40,8 @@ public class SlashCommandHandler {
             AudioSourceManagers.registerRemoteSources(audioPlayerManager);
             AudioSourceManagers.registerLocalSource(audioPlayerManager);
             audioPlayer = audioPlayerManager.createPlayer();
+            trackScheduler = new TrackScheduler(audioPlayer);
+            audioPlayer.addListener(trackScheduler);
         }
     }
 
@@ -163,4 +173,86 @@ public class SlashCommandHandler {
             }
         });
     }
+
+    public void handlePlayCommand(SlashCommandInteractionEvent event) {
+        event.reply("Got it. Loading...");
+        final Member member = event.getMember();
+        final GuildVoiceState memberVoiceState = member.getVoiceState();
+
+        // Check if the user is in a voice channel
+        if (!memberVoiceState.inAudioChannel()) {
+            event.reply("You are not connected to any voice channel.").queue();
+            return;
+        }
+
+        final AudioManager audioManager = event.getGuild().getAudioManager();
+        final VoiceChannel memberVoiceChannel = memberVoiceState.getChannel().asVoiceChannel();
+
+        // Set up the audio sending handler and connect to the voice channel
+        audioManager.setSendingHandler(new AudioPlayerSendHandler(audioPlayer));
+        audioManager.openAudioConnection(memberVoiceChannel);
+
+        // Extract the content from the command and process it
+        String deepseekOutput;
+        try {
+            deepseekOutput = messageDeepseek(event.getOption("mood-or-feeling-or-situation", OptionMapping::getAsString), true);
+        } catch (IOException e) {
+            event.reply("An error occurred while processing the content.").queue();
+            throw new RuntimeException(e);
+        }
+
+        JSONArray links;
+        try {
+            links = extractSongLinks(deepseekOutput).getJSONArray("links");
+        } catch (GeneralSecurityException | IOException e) {
+            event.reply("An error occurred while extracting song links.").queue();
+            throw new RuntimeException(e);
+        }
+
+        ArrayList<String> fileNames = new ArrayList<>();
+        for (int i = 0; i < links.length(); i++) {
+            String link = links.getString(i);
+            try {
+                fileNames.add(runYtDlp(link));
+            } catch (IOException | InterruptedException e) {
+                event.reply("An error occurred while downloading the song: " + link).queue();
+                throw new RuntimeException(e);
+            }
+        }
+
+        // Queue tracks or playlists for playback
+        for (String filePath : fileNames) {
+            // Mark this file to be deleted on exit
+            File f = new File(filePath);
+            f.deleteOnExit();
+
+            audioPlayerManager.loadItem(filePath, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack audioTrack) {
+                    trackScheduler.queue(audioTrack);
+                    event.reply("Added to queue: " + audioTrack.getInfo().title).queue();
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                    for (AudioTrack track : audioPlaylist.getTracks()) {
+                        trackScheduler.queue(track);
+                    }
+                    event.reply("Playlist loaded: " + audioPlaylist.getName() + ". Adding to queue...").queue();
+                }
+
+                @Override
+                public void noMatches() {
+                    event.reply("No matches found for file path: " + filePath).queue();
+                }
+
+                @Override
+                public void loadFailed(FriendlyException e) {
+                    event.reply("Failed to load the track: " + filePath).queue();
+                    e.printStackTrace();
+                }
+            });
+    }
+}
+
 }
