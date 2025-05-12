@@ -22,6 +22,7 @@ public class YTDLPDownloader {
                 Init.ytDlpPath,
                 "-x", "--ffmpeg-location", Init.ffmpegPath,
                 "--audio-format", "mp3",
+                "-S", "+size", // smallest size available
                 "--output", absoluteTime,
                 videoUrl);
         pb.redirectErrorStream(true);

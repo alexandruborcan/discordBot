@@ -61,6 +61,7 @@ public class SlashCommandHandler {
 
         final AudioManager audioManager = self.getGuild().getAudioManager();
         audioManager.closeAudioConnection();
+        audioPlayer.stopTrack();
         event.reply("Disconnected from voice channel.").queue();
     }
 
@@ -213,46 +214,42 @@ public class SlashCommandHandler {
         for (int i = 0; i < links.length(); i++) {
             String link = links.getString(i);
             try {
-                fileNames.add(runYtDlp(link));
+                String filePath = (runYtDlp(link));
+
+                // Mark this file to be deleted on exit
+                File f = new File(filePath);
+                f.deleteOnExit();
+
+                audioPlayerManager.loadItem(filePath, new AudioLoadResultHandler() {
+                    @Override
+                    public void trackLoaded(AudioTrack audioTrack) {
+                        trackScheduler.queue(audioTrack);
+                        event.reply("Added to queue: " + audioTrack.getInfo().title).queue();
+                    }
+
+                    @Override
+                    public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                        for (AudioTrack track : audioPlaylist.getTracks()) {
+                            trackScheduler.queue(track);
+                        }
+                        event.reply("Playlist loaded: " + audioPlaylist.getName() + ". Adding to queue...").queue();
+                    }
+
+                    @Override
+                    public void noMatches() {
+                        event.reply("No matches found for file path: " + filePath).queue();
+                    }
+
+                    @Override
+                    public void loadFailed(FriendlyException e) {
+                        event.reply("Failed to load the track: " + filePath).queue();
+                        e.printStackTrace();
+                    }
+                });
             } catch (IOException | InterruptedException e) {
                 event.reply("An error occurred while downloading the song: " + link).queue();
                 throw new RuntimeException(e);
             }
         }
-
-        // Queue tracks or playlists for playback
-        for (String filePath : fileNames) {
-            // Mark this file to be deleted on exit
-            File f = new File(filePath);
-            f.deleteOnExit();
-
-            audioPlayerManager.loadItem(filePath, new AudioLoadResultHandler() {
-                @Override
-                public void trackLoaded(AudioTrack audioTrack) {
-                    trackScheduler.queue(audioTrack);
-                    event.reply("Added to queue: " + audioTrack.getInfo().title).queue();
-                }
-
-                @Override
-                public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                    for (AudioTrack track : audioPlaylist.getTracks()) {
-                        trackScheduler.queue(track);
-                    }
-                    event.reply("Playlist loaded: " + audioPlaylist.getName() + ". Adding to queue...").queue();
-                }
-
-                @Override
-                public void noMatches() {
-                    event.reply("No matches found for file path: " + filePath).queue();
-                }
-
-                @Override
-                public void loadFailed(FriendlyException e) {
-                    event.reply("Failed to load the track: " + filePath).queue();
-                    e.printStackTrace();
-                }
-            });
     }
-}
-
 }
