@@ -16,10 +16,11 @@ import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
 import static proiect.DeepseekProvider.*;
 import static proiect.YoutubeDataAPI.extractSongLinks;
 import static proiect.YTDLPDownloader.runYtDlp;
+import static proiect.Initialize.init;
 
 public class Main {
     public static void main(String[] args) throws IOException, GeneralSecurityException, InterruptedException, URISyntaxException {
-        new Init();
+        init();
         String discordToken = null;
         try {
             discordToken = SecretFileReader.getDiscordKey();
@@ -53,13 +54,6 @@ public class Main {
                 Commands.slash("speak", "Make the bot speak in the voice channel")
                         .addOption(STRING, "text", "The text to be spoken", true)
         ).queue();
-
-        String reply = messageDeepseek("I want to listen to 5 Metallica songs", true);
-        JSONArray links = extractSongLinks(reply).getJSONArray("links");
-        for (int i = 0; i < links.length(); i++) {
-            String link = links.getString(i);
-            runYtDlp(link);
-        }
     }
 
 }
