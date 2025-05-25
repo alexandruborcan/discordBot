@@ -187,6 +187,7 @@ public class SlashCommandHandler {
     public void handlePlayCommand(SlashCommandInteractionEvent event) {
         InteractionHook interactionHook = event.getHook(); // We save the interaction hook so we can edit the reply later
         event.deferReply().queue(); // This gives the bot a larger window of time to respond (15 minutes instead of 3 seconds)
+        final String eventID = event.getId();
         final Member member = event.getMember();
         final GuildVoiceState memberVoiceState = member.getVoiceState();
 
@@ -229,44 +230,50 @@ public class SlashCommandHandler {
                 String filePath = runYtDlp((String) link);
                 fileList.add(new File(filePath));
                 fileList.getLast().deleteOnExit();
+
+                audioPlayerManager.loadItem(filePath, new AudioLoadResultHandler() {
+                    static String eventReply = "";
+                    static String innerEventID = "";
+
+                    @Override
+                    public void trackLoaded(AudioTrack audioTrack) {
+                        // If this class is called from a different event, we need to clear the eventReply because it's
+                        // static and will accumulate over time
+                        if (!eventID.equals(innerEventID)) {
+                            innerEventID = eventID;
+                            eventReply = "";
+                        }
+
+                        trackScheduler.queue(audioTrack);
+                        eventReply = eventReply.concat("Added to queue: " + audioTrack.getInfo().title + "\n");
+                        interactionHook.editOriginal(eventReply).queue();
+                    }
+
+                    @Override
+                    public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                        for (AudioTrack track : audioPlaylist.getTracks()) {
+                            trackScheduler.queue(track);
+                        }
+                        interactionHook.editOriginal("Playlist loaded: " + audioPlaylist.getName() + ". Adding to queue...").queue();
+                    }
+
+                    @Override
+                    public void noMatches() {
+                        interactionHook.editOriginal("No matches found for file path: " + filePath).queue();
+                    }
+
+                    @Override
+                    public void loadFailed(FriendlyException e) {
+                        interactionHook.editOriginal("Failed to load the track: " + filePath).queue();
+                        e.printStackTrace();
+                    }
+                });
             } catch (IOException | InterruptedException e) {
                 interactionHook.editOriginal("An error occurred while downloading the song: " + link).queue();
                 throw new RuntimeException(e);
             }
+
         });
-
-        for (File file : fileList) {
-            String filePath = file.getPath();
-            audioPlayerManager.loadItem(filePath, new AudioLoadResultHandler() {
-                static String eventReply = "";
-
-                @Override
-                public void trackLoaded(AudioTrack audioTrack) {
-                    trackScheduler.queue(audioTrack);
-                    eventReply = eventReply.concat("Added to queue: " + audioTrack.getInfo().title + "\n");
-                    interactionHook.editOriginal(eventReply).queue();
-                }
-
-                @Override
-                public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                    for (AudioTrack track : audioPlaylist.getTracks()) {
-                        trackScheduler.queue(track);
-                    }
-                    interactionHook.editOriginal("Playlist loaded: " + audioPlaylist.getName() + ". Adding to queue...").queue();
-                }
-
-                @Override
-                public void noMatches() {
-                    interactionHook.editOriginal("No matches found for file path: " + filePath).queue();
-                }
-
-                @Override
-                public void loadFailed(FriendlyException e) {
-                    interactionHook.editOriginal("Failed to load the track: " + filePath).queue();
-                    e.printStackTrace();
-                }
-            });
-        }
     }
 
     /**
