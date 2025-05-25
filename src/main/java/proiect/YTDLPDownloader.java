@@ -19,8 +19,8 @@ public class YTDLPDownloader {
 
         String absoluteTime = String.valueOf(System.currentTimeMillis());
         ProcessBuilder pb = new ProcessBuilder(
-                Init.ytDlpPath,
-                "-x", "--ffmpeg-location", Init.ffmpegPath,
+                Initialize.ytDlpPath,
+                "-x", "--ffmpeg-location", Initialize.ffmpegPath,
                 "--audio-format", "mp3",
                 "-S", "+size", // smallest size available
                 "--output", absoluteTime,

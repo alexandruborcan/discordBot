@@ -5,21 +5,17 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
-import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
 
 import static net.dv8tion.jda.api.interactions.commands.OptionType.STRING;
-import static proiect.DeepseekProvider.*;
-import static proiect.YoutubeDataAPI.extractSongLinks;
-import static proiect.YTDLPDownloader.runYtDlp;
+import static proiect.Initialize.init;
 
 public class Main {
-    public static void main(String[] args) throws IOException, GeneralSecurityException, InterruptedException, URISyntaxException {
-        new Init();
+    public static void main(String[] args) throws IOException, URISyntaxException {
+        init();
         String discordToken = null;
         try {
             discordToken = SecretFileReader.getDiscordKey();

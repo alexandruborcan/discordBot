@@ -18,7 +18,7 @@ import static proiect.OSPackageManager.*;
  *     and permission settings for Unix-based systems.
  * </p>
  */
-public class Init {
+public class Initialize {
     /** The file path to the yt-dlp executable, set according to the operating system. */
     static String ytDlpPath;
 
@@ -26,16 +26,14 @@ public class Init {
     static String ffmpegPath;
 
     /**
-     * Initialization utility class for setting up yt-dlp and ffmpeg executables based on the user's operating system.
-     * <p>
-     *     Downloads the necessary binaries if not already available locally and sets the proper file paths.
-     *     For Unix-based systems, it ensures the downloaded files are executable.
-     * </p>
+     * Initializes the environment by setting up the paths for yt-dlp and ffmpeg executables
+     * based on the operating system. It ensures that the required directories and files
+     * are present, downloading and extracting them if necessary.
      *
      * @throws IOException if there is an error creating directories, downloading files, or setting permissions.
      * @throws URISyntaxException if a string could not be parsed as a URI reference.
      */
-    Init() throws IOException, URISyntaxException {
+    public static void init() throws IOException, URISyntaxException {
         String os = System.getProperty("os.name").toLowerCase();
 
         if (os.contains("win")) {

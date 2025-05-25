@@ -11,7 +11,7 @@ import java.io.File;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
-class InitTest {
+class InitializeTest {
 
     @BeforeEach
     void setUp() {
@@ -25,7 +25,7 @@ class InitTest {
     @EnabledOnOs(OS.WINDOWS)
     void testInitOnWindows() {
         try (MockedStatic<OSPackageManager> mocked = mockStatic(OSPackageManager.class)) {
-            assertDoesNotThrow(Init::new);
+            assertDoesNotThrow(Initialize::new);
             mocked.verify(() -> OSPackageManager.downloadFile(anyString(), anyString()), atLeastOnce());
             mocked.verify(() -> OSPackageManager.ffmpegUnzip(anyString(), anyString()), atLeastOnce());
         }
@@ -35,7 +35,7 @@ class InitTest {
     @EnabledOnOs(OS.MAC)
     void testInitOnMac() {
         try (MockedStatic<OSPackageManager> mocked = mockStatic(OSPackageManager.class)) {
-            assertDoesNotThrow(Init::new);
+            assertDoesNotThrow(Initialize::new);
             mocked.verify(() -> OSPackageManager.downloadFile(anyString(), anyString()), atLeastOnce());
             mocked.verify(() -> OSPackageManager.ffmpegUnzip(anyString(), anyString()), atLeastOnce());
         }
@@ -46,7 +46,7 @@ class InitTest {
     void testInitOnLinux() {
         try (MockedStatic<OSPackageManager> mocked = mockStatic(OSPackageManager.class)) {
             mocked.when(() -> OSPackageManager.tar2zip(anyString(), anyString())).thenAnswer(invocation -> null);
-            assertDoesNotThrow(Init::new);
+            assertDoesNotThrow(Initialize::new);
             mocked.verify(() -> OSPackageManager.downloadFile(anyString(), anyString()), atLeastOnce());
             mocked.verify(() -> OSPackageManager.tar2zip(anyString(), anyString()), atLeastOnce());
             mocked.verify(() -> OSPackageManager.ffmpegUnzip(anyString(), anyString()), atLeastOnce());
