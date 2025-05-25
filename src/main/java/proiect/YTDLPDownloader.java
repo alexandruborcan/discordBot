@@ -21,6 +21,7 @@ public class YTDLPDownloader {
         ProcessBuilder pb = new ProcessBuilder(
                 Initialize.ytDlpPath,
                 "-x", "--ffmpeg-location", Initialize.ffmpegPath,
+                "--embed-metadata",
                 "--audio-format", "mp3",
                 "-S", "+size", // smallest size available
                 "--output", absoluteTime,
