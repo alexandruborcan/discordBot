@@ -16,8 +16,8 @@ public class YTDLPDownloaderTest {
 
     @BeforeEach
     void setUp() {
-        Init.ytDlpPath = "yt-dlp";
-        Init.ffmpegPath = "ffmpeg";
+        Initialize.ytDlpPath = "yt-dlp";
+        Initialize.ffmpegPath = "ffmpeg";
     }
 
     @Test
