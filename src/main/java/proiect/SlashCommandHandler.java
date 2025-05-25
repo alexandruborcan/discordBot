@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.managers.AudioManager;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.json.JSONArray;
 
 import java.io.File;
@@ -177,6 +176,11 @@ public class SlashCommandHandler {
         });
     }
 
+    /**
+     * Handles the "play" command.
+     *
+     * @param event the event triggered by a slash command interaction.
+     */
     public void handlePlayCommand(SlashCommandInteractionEvent event) {
         InteractionHook interactionHook = event.getHook(); // We save the interaction hook so we can edit the reply later
         event.deferReply().queue(); // This gives the bot a larger window of time to respond (15 minutes instead of 3 seconds)
@@ -224,10 +228,13 @@ public class SlashCommandHandler {
                 f.deleteOnExit();
 
                 audioPlayerManager.loadItem(filePath, new AudioLoadResultHandler() {
+                    static String eventReply = "";
+
                     @Override
                     public void trackLoaded(AudioTrack audioTrack) {
                         trackScheduler.queue(audioTrack);
-                        interactionHook.editOriginal("Added to queue: " + audioTrack.getInfo().title).queue();
+                        eventReply = eventReply.concat("Added to queue: " + audioTrack.getInfo().title + "\n");
+                        interactionHook.editOriginal(eventReply).queue();
                     }
 
                     @Override
@@ -253,6 +260,80 @@ public class SlashCommandHandler {
                 interactionHook.editOriginal("An error occurred while downloading the song: " + link).queue();
                 throw new RuntimeException(e);
             }
+        }
+    }
+
+    /**
+     * Handles the "skip" command.
+     *
+     * @param event the event triggered by a slash command interaction.
+     */
+    public void handleSkipCommand(SlashCommandInteractionEvent event) {
+        if (audioPlayer == null || trackScheduler == null) {
+            event.reply("No track is currently playing.").queue();
+            return;
+        }
+
+        if (audioPlayer.getPlayingTrack() == null) {
+            event.reply("No track is currently playing.").queue();
+            return;
+        }
+
+        trackScheduler.nextTrack();
+        event.reply("Skipped to the next track: " + trackScheduler.getCurrentTrackTitle()).queue();
+    }
+
+    /**
+     * Handles the "stop" command.
+     *
+     * @param event the event triggered by a slash command interaction.
+     */
+    public void handleStopCommand(SlashCommandInteractionEvent event) {
+        if (audioPlayer == null || trackScheduler == null) {
+            event.reply("No track is currently playing.").queue();
+            return;
+        }
+
+        audioPlayer.stopTrack();
+        trackScheduler.stopTrack();
+        trackScheduler.clearQueue();
+
+        final Member self = event.getGuild().getSelfMember();
+        final GuildVoiceState selfVoiceState = self.getVoiceState();
+        if (!selfVoiceState.inAudioChannel()) {
+            event.reply("Not connected to any voice channel.").queue();
+            return;
+        }
+
+        final AudioManager audioManager = self.getGuild().getAudioManager();
+        audioManager.closeAudioConnection();
+        audioPlayer.stopTrack();
+        event.reply("Stopped the music and cleared the queue.").queue();
+    }
+
+    /**
+     * Handles the pause and unpause commands.
+     *
+     * @param event the event triggered by a slash command interaction.
+     * @param shouldPause true if the command is to pause, false to unpause.
+     */
+    public void handlePauseUnpauseCommand(SlashCommandInteractionEvent event, boolean shouldPause) {
+        if (audioPlayer == null || trackScheduler == null) {
+            event.reply("No track is currently playing.").queue();
+            return;
+        }
+
+        if (audioPlayer.getPlayingTrack() == null) {
+            event.reply("No track is currently playing.").queue();
+            return;
+        }
+
+        if (shouldPause) {
+            audioPlayer.setPaused(true);
+            event.reply("Paused the current track: " + trackScheduler.getCurrentTrackTitle()).queue();
+        } else {
+            audioPlayer.setPaused(false);
+            event.reply("Resumed the current track: " + trackScheduler.getCurrentTrackTitle()).queue();
         }
     }
 }

@@ -53,4 +53,29 @@ public class TrackScheduler extends AudioEventAdapter {
             nextTrack();
         }
     }
+
+    /**
+     * Get the current track title.
+     * @return The title of the currently playing track, or a message if no track is playing.
+     */
+    public String getCurrentTrackTitle() {
+        AudioTrack currentTrack = player.getPlayingTrack();
+        return currentTrack != null ? currentTrack.getInfo().title : "No track is currently playing.";
+    }
+
+    /**
+     * Clears the queue of tracks.
+     */
+    public void clearQueue() {
+        queue.clear();
+    }
+
+    /**
+     * Stops the currently playing track.
+     */
+    public void stopTrack() {
+        if (player.getPlayingTrack() != null) {
+            player.stopTrack();
+        }
+    }
 }

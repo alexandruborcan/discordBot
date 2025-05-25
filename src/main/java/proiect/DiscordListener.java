@@ -27,11 +27,17 @@ public class DiscordListener extends ListenerAdapter {
                 commandHandler.handlePingCommand(event);
                 break;
             case "stop":
+                commandHandler.handleStopCommand(event);
+                break;
             case "skip":
+                commandHandler.handleSkipCommand(event);
+                break;
             case "pause":
+                commandHandler.handlePauseUnpauseCommand(event, true);
+                break;
             case "unpause":
             case "resume":
-                commandHandler.handleNotImplementedCommand(event);
+                commandHandler.handlePauseUnpauseCommand(event, false);
                 break;
             case "connect":
                 commandHandler.handleConnectCommand(event);
