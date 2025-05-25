@@ -18,11 +18,15 @@ public class DeepseekProvider {
 
     public static String messageDeepseek(String message, boolean json) throws IOException {
         if (message.isEmpty()) throw new IllegalArgumentException("Message cannot be empty.");
-        String systemMessage = "";
+        String systemMessage = "You only reply with songs that actually exist. DO NOT come up with song names of your own," +
+                " you only reply with real discography.";
         if (json) {
             systemMessage = "You are a bot that ONLY replies in the following format {\"songs\":[\"song1\", \"song2\"]}." +
                     "You DO NOT know about the existence of json or code formatting, you DO NOT use code blocks or" +
-                    " any other kind of formatting but the provided one to reply.";
+                    " any other kind of formatting but the provided one to reply. You only reply with songs that" +
+                    " actually exist. DO NOT come up with song names of your own, you only reply with real discography." +
+                    " If the prompt you receive contains a song name, an artist, or a combination of the two you reply in the" +
+                    " already mentioned format, adding all information to the list item.";
         }
         DeepseekProvider builder = new DeepseekProvider();
         OpenAIClient client = builder.DeepseekBuilder();
