@@ -76,6 +76,8 @@ public class YoutubeDataAPI {
                 .setPart("snippet")
                 .setQ(keyWord)
                 .setType("video")
+                .setRegionCode("RO")
+                .setOrder("relevance")
                 .setMaxResults(1L)
                 .setKey(API_KEY)
                 .execute();
