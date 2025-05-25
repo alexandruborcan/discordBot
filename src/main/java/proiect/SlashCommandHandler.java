@@ -203,6 +203,7 @@ public class SlashCommandHandler {
         // Extract the content from the command and process it
         String deepseekOutput;
         try {
+            interactionHook.editOriginal("Waiting for Deepseek to respond...").queue();
             deepseekOutput = messageDeepseek(event.getOption("mood-or-feeling-or-situation", OptionMapping::getAsString), true);
         } catch (IOException e) {
             interactionHook.editOriginal("An error occurred while processing the content.").queue();
@@ -218,6 +219,7 @@ public class SlashCommandHandler {
         }
 
         ArrayList<String> fileNames = new ArrayList<>();
+        interactionHook.editOriginal("Downloading songs...").queue();
         for (int i = 0; i < links.length(); i++) {
             String link = links.getString(i);
             try {
