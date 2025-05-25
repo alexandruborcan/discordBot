@@ -349,4 +349,27 @@ public class SlashCommandHandler {
             event.reply("Resumed the current track: " + trackScheduler.getCurrentTrackTitle()).queue();
         }
     }
+
+    public void handleQueueCommand(SlashCommandInteractionEvent event) {
+        if (audioPlayer == null || trackScheduler == null) {
+            event.reply("No track is currently playing.").queue();
+            return;
+        }
+
+        if (trackScheduler.getQueue().isEmpty()) {
+            event.reply("The queue is empty.").queue();
+            return;
+        }
+
+        StringBuilder queueMessage = new StringBuilder("**Currently playing song:**\n");
+        AudioTrack currentTrack = audioPlayer.getPlayingTrack();
+        queueMessage.append(currentTrack.getInfo().title).append("\n");
+        queueMessage.append("**Queue:**\n");
+
+        int count = 1;
+        for (AudioTrack track : trackScheduler.getQueue()) {
+            queueMessage.append(count++).append(". ").append(track.getInfo().title).append("\n");
+        }
+        event.reply(queueMessage.toString()).queue();
+    }
 }

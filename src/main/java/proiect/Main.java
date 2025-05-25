@@ -47,7 +47,8 @@ public class Main {
                 Commands.slash("connect", "Connect to the voice channel"),
                 Commands.slash("disconnect", "Disconnect from the voice channel"),
                 Commands.slash("speak", "Make the bot speak in the voice channel")
-                        .addOption(STRING, "text", "The text to be spoken", true)
+                        .addOption(STRING, "text", "The text to be spoken", true),
+                Commands.slash("queue", "Show the current music queue")
         ).queue();
     }
 
