@@ -44,6 +44,7 @@ public class DiscordListener extends ListenerAdapter {
                 break;
             case "play":
                 commandHandler.handlePlayCommand(event);
+                break;
             default:
                 event.reply("Unknown command.").queue();
                 break;
