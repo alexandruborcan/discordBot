@@ -13,8 +13,10 @@ import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.managers.AudioManager;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.json.JSONArray;
 
 import java.io.File;
@@ -176,13 +178,14 @@ public class SlashCommandHandler {
     }
 
     public void handlePlayCommand(SlashCommandInteractionEvent event) {
-        event.reply("Got it. Loading...").queue();
+        InteractionHook interactionHook = event.getHook(); // We save the interaction hook so we can edit the reply later
+        event.deferReply().queue(); // This gives the bot a larger window of time to respond (15 minutes instead of 3 seconds)
         final Member member = event.getMember();
         final GuildVoiceState memberVoiceState = member.getVoiceState();
 
         // Check if the user is in a voice channel
         if (!memberVoiceState.inAudioChannel()) {
-            event.reply("You are not connected to any voice channel.").queue();
+            interactionHook.editOriginal("You are not connected to any voice channel.").queue();
             return;
         }
 
@@ -198,7 +201,7 @@ public class SlashCommandHandler {
         try {
             deepseekOutput = messageDeepseek(event.getOption("mood-or-feeling-or-situation", OptionMapping::getAsString), true);
         } catch (IOException e) {
-            event.reply("An error occurred while processing the content.").queue();
+            interactionHook.editOriginal("An error occurred while processing the content.").queue();
             throw new RuntimeException(e);
         }
 
@@ -206,7 +209,7 @@ public class SlashCommandHandler {
         try {
             links = extractSongLinks(deepseekOutput).getJSONArray("links");
         } catch (GeneralSecurityException | IOException e) {
-            event.reply("An error occurred while extracting song links.").queue();
+            interactionHook.editOriginal("An error occurred while extracting song links.").queue();
             throw new RuntimeException(e);
         }
 
@@ -224,7 +227,7 @@ public class SlashCommandHandler {
                     @Override
                     public void trackLoaded(AudioTrack audioTrack) {
                         trackScheduler.queue(audioTrack);
-                        event.reply("Added to queue: " + audioTrack.getInfo().title).queue();
+                        interactionHook.editOriginal("Added to queue: " + audioTrack.getInfo().title).queue();
                     }
 
                     @Override
@@ -232,22 +235,22 @@ public class SlashCommandHandler {
                         for (AudioTrack track : audioPlaylist.getTracks()) {
                             trackScheduler.queue(track);
                         }
-                        event.reply("Playlist loaded: " + audioPlaylist.getName() + ". Adding to queue...").queue();
+                        interactionHook.editOriginal("Playlist loaded: " + audioPlaylist.getName() + ". Adding to queue...").queue();
                     }
 
                     @Override
                     public void noMatches() {
-                        event.reply("No matches found for file path: " + filePath).queue();
+                        interactionHook.editOriginal("No matches found for file path: " + filePath).queue();
                     }
 
                     @Override
                     public void loadFailed(FriendlyException e) {
-                        event.reply("Failed to load the track: " + filePath).queue();
+                        interactionHook.editOriginal("Failed to load the track: " + filePath).queue();
                         e.printStackTrace();
                     }
                 });
             } catch (IOException | InterruptedException e) {
-                event.reply("An error occurred while downloading the song: " + link).queue();
+                interactionHook.editOriginal("An error occurred while downloading the song: " + link).queue();
                 throw new RuntimeException(e);
             }
         }
