@@ -176,7 +176,7 @@ public class SlashCommandHandler {
     }
 
     public void handlePlayCommand(SlashCommandInteractionEvent event) {
-        event.reply("Got it. Loading...");
+        event.reply("Got it. Loading...").queue();
         final Member member = event.getMember();
         final GuildVoiceState memberVoiceState = member.getVoiceState();
 
