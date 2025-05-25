@@ -1,6 +1,7 @@
 package proiect;
 
 import java.io.*;
+import java.util.Random;
 
 /**
  * Utility class for downloading and converting YouTube videos to MP3 format using yt-dlp.
@@ -16,15 +17,16 @@ public class YTDLPDownloader {
      * @throws InterruptedException if the current thread is interrupted while waiting for the process to finish
      */
     public static String runYtDlp(String videoUrl) throws IOException, InterruptedException{
-
+        Random rand = new Random();
         String absoluteTime = String.valueOf(System.currentTimeMillis());
+        String fileName = "yt-dlp-" + absoluteTime + rand.nextInt() + ".mp3";
         ProcessBuilder pb = new ProcessBuilder(
                 Initialize.ytDlpPath,
                 "-x", "--ffmpeg-location", Initialize.ffmpegPath,
                 "--embed-metadata",
                 "--audio-format", "mp3",
                 "-S", "+size", // smallest size available
-                "--output", absoluteTime,
+                "--output", fileName,
                 videoUrl);
         pb.redirectErrorStream(true);
         Process process = pb.start();
@@ -39,6 +41,6 @@ public class YTDLPDownloader {
 
         int exitCode = process.waitFor();
         System.out.println("yt-dlp finished with exit code: " + exitCode);
-        return absoluteTime + ".mp3";
+        return fileName;
     }
 }

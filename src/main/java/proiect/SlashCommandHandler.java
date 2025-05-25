@@ -22,7 +22,10 @@ import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static proiect.DeepseekProvider.messageDeepseek;
 import static proiect.YTDLPDownloader.runYtDlp;
@@ -218,50 +221,51 @@ public class SlashCommandHandler {
             throw new RuntimeException(e);
         }
 
-        ArrayList<String> fileNames = new ArrayList<>();
         interactionHook.editOriginal("Downloading songs...").queue();
-        for (int i = 0; i < links.length(); i++) {
-            String link = links.getString(i);
+        Stream<Object> linkStream = StreamSupport.stream(links.spliterator(), true);
+        List<File> fileList = new ArrayList<>();
+        linkStream.forEach(link -> {
             try {
-                String filePath = (runYtDlp(link));
-
-                // Mark this file to be deleted on exit
-                File f = new File(filePath);
-                f.deleteOnExit();
-
-                audioPlayerManager.loadItem(filePath, new AudioLoadResultHandler() {
-                    static String eventReply = "";
-
-                    @Override
-                    public void trackLoaded(AudioTrack audioTrack) {
-                        trackScheduler.queue(audioTrack);
-                        eventReply = eventReply.concat("Added to queue: " + audioTrack.getInfo().title + "\n");
-                        interactionHook.editOriginal(eventReply).queue();
-                    }
-
-                    @Override
-                    public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                        for (AudioTrack track : audioPlaylist.getTracks()) {
-                            trackScheduler.queue(track);
-                        }
-                        interactionHook.editOriginal("Playlist loaded: " + audioPlaylist.getName() + ". Adding to queue...").queue();
-                    }
-
-                    @Override
-                    public void noMatches() {
-                        interactionHook.editOriginal("No matches found for file path: " + filePath).queue();
-                    }
-
-                    @Override
-                    public void loadFailed(FriendlyException e) {
-                        interactionHook.editOriginal("Failed to load the track: " + filePath).queue();
-                        e.printStackTrace();
-                    }
-                });
+                String filePath = runYtDlp((String) link);
+                fileList.add(new File(filePath));
+                fileList.getLast().deleteOnExit();
             } catch (IOException | InterruptedException e) {
                 interactionHook.editOriginal("An error occurred while downloading the song: " + link).queue();
                 throw new RuntimeException(e);
             }
+        });
+
+        for (File file : fileList) {
+            String filePath = file.getPath();
+            audioPlayerManager.loadItem(filePath, new AudioLoadResultHandler() {
+                static String eventReply = "";
+
+                @Override
+                public void trackLoaded(AudioTrack audioTrack) {
+                    trackScheduler.queue(audioTrack);
+                    eventReply = eventReply.concat("Added to queue: " + audioTrack.getInfo().title + "\n");
+                    interactionHook.editOriginal(eventReply).queue();
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                    for (AudioTrack track : audioPlaylist.getTracks()) {
+                        trackScheduler.queue(track);
+                    }
+                    interactionHook.editOriginal("Playlist loaded: " + audioPlaylist.getName() + ". Adding to queue...").queue();
+                }
+
+                @Override
+                public void noMatches() {
+                    interactionHook.editOriginal("No matches found for file path: " + filePath).queue();
+                }
+
+                @Override
+                public void loadFailed(FriendlyException e) {
+                    interactionHook.editOriginal("Failed to load the track: " + filePath).queue();
+                    e.printStackTrace();
+                }
+            });
         }
     }
 
@@ -316,7 +320,7 @@ public class SlashCommandHandler {
     /**
      * Handles the pause and unpause commands.
      *
-     * @param event the event triggered by a slash command interaction.
+     * @param event       the event triggered by a slash command interaction.
      * @param shouldPause true if the command is to pause, false to unpause.
      */
     public void handlePauseUnpauseCommand(SlashCommandInteractionEvent event, boolean shouldPause) {
