@@ -60,10 +60,11 @@ public class SlashCommandHandler {
             event.reply("Not connected to any voice channel.").queue();
             return;
         }
-
         final AudioManager audioManager = self.getGuild().getAudioManager();
         audioManager.closeAudioConnection();
         audioPlayer.stopTrack();
+        trackScheduler.stopTrack();
+        trackScheduler.clearQueue();
         event.reply("Disconnected from voice channel.").queue();
     }
 
@@ -217,14 +218,11 @@ public class SlashCommandHandler {
 
         interactionHook.editOriginal("Downloading songs...").queue();
         Stream<Object> songStream = StreamSupport.stream(songs.spliterator(), true);
-        List<File> fileList = new ArrayList<>();
         songStream.forEach(song -> {
             try {
                 String filePath;
                 if(song.toString().contains("watch?v="))  filePath = runYtDlp((String) song, true);
                 else filePath = runYtDlp((String) song, false);
-                fileList.add(new File(filePath));
-                fileList.getLast().deleteOnExit();
 
                 audioPlayerManager.loadItem(filePath, new AudioLoadResultHandler() {
                     static String eventReply = "";
@@ -314,8 +312,6 @@ public class SlashCommandHandler {
         }
 
         final AudioManager audioManager = self.getGuild().getAudioManager();
-        audioManager.closeAudioConnection();
-        audioPlayer.stopTrack();
         event.reply("Stopped the music and cleared the queue.").queue();
     }
 
