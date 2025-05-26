@@ -76,6 +76,15 @@ public class TrackScheduler extends AudioEventAdapter {
      * Clears the queue of tracks.
      */
     public void clearQueue() {
+        for(AudioTrack track : queue) {
+            File filePath = (File) track.getUserData();
+            if (filePath != null) {
+                boolean deleted = filePath.delete();
+                if (!deleted) {
+                    System.err.println("Failed to delete file: " + filePath.getAbsolutePath());
+                }
+            }
+        }
         queue.clear();
     }
 
