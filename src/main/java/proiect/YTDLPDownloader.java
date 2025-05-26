@@ -39,7 +39,7 @@ public class YTDLPDownloader {
 
     private static @NotNull Process getProcess(String videoTitle, boolean link, String fileName) throws IOException {
         ProcessBuilder pb;
-        if (link){
+        if (!link){
             pb = new ProcessBuilder(
                     Initialize.ytDlpPath,
                     "-x", "--ffmpeg-location", Initialize.ffmpegPath,
