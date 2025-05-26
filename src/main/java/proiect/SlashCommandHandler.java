@@ -17,10 +17,10 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -29,8 +29,6 @@ import java.util.stream.StreamSupport;
 
 import static proiect.DeepseekProvider.messageDeepseek;
 import static proiect.YTDLPDownloader.runYtDlp;
-import static proiect.YoutubeDataAPI.extractSongLinks;
-
 public class SlashCommandHandler {
 
     private static AudioPlayerManager audioPlayerManager;
@@ -214,20 +212,17 @@ public class SlashCommandHandler {
             throw new RuntimeException(e);
         }
 
-        JSONArray links;
-        try {
-            links = extractSongLinks(deepseekOutput).getJSONArray("links");
-        } catch (GeneralSecurityException | IOException e) {
-            interactionHook.editOriginal("An error occurred while extracting song links.").queue();
-            throw new RuntimeException(e);
-        }
+        JSONArray songs;
+        songs = new JSONObject(deepseekOutput).getJSONArray("songs");
 
         interactionHook.editOriginal("Downloading songs...").queue();
-        Stream<Object> linkStream = StreamSupport.stream(links.spliterator(), true);
+        Stream<Object> songStream = StreamSupport.stream(songs.spliterator(), true);
         List<File> fileList = new ArrayList<>();
-        linkStream.forEach(link -> {
+        songStream.forEach(song -> {
             try {
-                String filePath = runYtDlp((String) link);
+                String filePath;
+                if(song.toString().contains("watch?v="))  filePath = runYtDlp((String) song, true);
+                else filePath = runYtDlp((String) song, false);
                 fileList.add(new File(filePath));
                 fileList.getLast().deleteOnExit();
 
@@ -269,7 +264,7 @@ public class SlashCommandHandler {
                     }
                 });
             } catch (IOException | InterruptedException e) {
-                interactionHook.editOriginal("An error occurred while downloading the song: " + link).queue();
+                interactionHook.editOriginal("An error occurred while downloading the song: " + song).queue();
                 throw new RuntimeException(e);
             }
 
