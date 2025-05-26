@@ -17,9 +17,10 @@ public class DeepseekProvider {
     }
 
     public static String messageDeepseek(String message, boolean json) throws IOException {
-        if (message.isEmpty()) throw new IllegalArgumentException("Message cannot be empty.");
         String systemMessage = "You only reply with songs that actually exist. DO NOT come up with song names of your own," +
                 " you only reply with real discography.";
+        if (message.isEmpty()) throw new IllegalArgumentException("Message cannot be empty.");
+        if (message.contains("watch?v=")) return "{\"songs\":[\""+message+"\"]}";
         if (json) {
             systemMessage = "You are a bot that ONLY replies in the following format {\"songs\":[\"song1\", \"song2\"]}." +
                     "You DO NOT know about the existence of json or code formatting, you DO NOT use code blocks or" +
@@ -40,6 +41,7 @@ public class DeepseekProvider {
 
         List<String> reply = client.chat().completions().create(createParams).choices().stream()
                 .flatMap(choice -> choice.message().content().stream()).toList();
+        System.out.println(reply);
         return reply.getFirst();
     }
 
