@@ -238,7 +238,7 @@ public class SlashCommandHandler {
                             innerEventID = eventID;
                             eventReply = "";
                         }
-
+                        audioTrack.setUserData(new File(filePath));
                         trackScheduler.queue(audioTrack);
                         eventReply = eventReply.concat("Added to queue: " + audioTrack.getInfo().title + "\n");
                         interactionHook.editOriginal(eventReply).queue();
