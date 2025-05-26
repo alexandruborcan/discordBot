@@ -27,7 +27,7 @@ public class DeepseekProvider {
                     " any other kind of formatting but the provided one to reply. You only reply with songs that" +
                     " actually exist. DO NOT come up with song names of your own, you only reply with real discography." +
                     " If the prompt you receive contains a song name, an artist, or a combination of the two you reply in the" +
-                    " already mentioned format, adding all information to the list item.";
+                    " already mentioned format, adding all information to the list like SONG by ARTIST.";
         }
         DeepseekProvider builder = new DeepseekProvider();
         OpenAIClient client = builder.DeepseekBuilder();
