@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
 class SecretFileReaderTest {
@@ -22,7 +23,7 @@ class SecretFileReaderTest {
     void overrideFilePath() {
         try {
             // Access the FILE_PATH field using reflection
-            var field = SecretFileReader.class.getDeclaredField("FILE_PATH");
+            Field field = SecretFileReader.class.getDeclaredField("FILE_PATH");
             field.setAccessible(true);  // Make the field accessible
 
             // Save the original file path before modifying it
@@ -38,7 +39,7 @@ class SecretFileReaderTest {
     void restoreFilePath() {
         try {
             // Restore the original file path after the test
-            var field = SecretFileReader.class.getDeclaredField("FILE_PATH");
+            Field field = SecretFileReader.class.getDeclaredField("FILE_PATH");
             field.setAccessible(true);
             field.set(null, originalFilePath);  // Set back to the original path
         } catch (Exception e) {
