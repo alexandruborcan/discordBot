@@ -7,13 +7,6 @@ A feature-rich Discord bot built in Java that provides music playback, text-to-s
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [API Dependencies](#api-dependencies)
-- [Architecture](#architecture)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
 
 ## ✨ Features
 
