@@ -36,6 +36,9 @@ public class SlashCommandHandler {
     private static AudioPlayerManager audioPlayerManager;
     private AudioPlayer audioPlayer = null;
     private TrackScheduler trackScheduler;
+    private static String eventReply = "";
+    private static String innerEventID = "";
+
 
     public SlashCommandHandler() {
         if (audioPlayerManager == null) {
@@ -232,9 +235,6 @@ public class SlashCommandHandler {
                 fileList.getLast().deleteOnExit();
 
                 audioPlayerManager.loadItem(filePath, new AudioLoadResultHandler() {
-                    static String eventReply = "";
-                    static String innerEventID = "";
-
                     @Override
                     public void trackLoaded(AudioTrack audioTrack) {
                         // If this class is called from a different event, we need to clear the eventReply because it's
