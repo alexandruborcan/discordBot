@@ -41,7 +41,6 @@ A feature-rich Discord bot built in Java that provides music playback, text-to-s
 ### External Tools (Auto-downloaded on first run)
 - **yt-dlp**: YouTube video downloader (handles audio extraction)
 - **FFmpeg**: Audio processing and conversion utility
-- **Python/Jython**: Required for yt-dlp operations
 
 ### API Keys Required
 You will need the following API keys stored in `secrets.json`:
